@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>開発環境: shimizu-202009-dev.web.app</title>
+</head>
+<body>
+  <button id="shogi_button" type="button">将棋プレイ画面</button>
+  <button id="reversi_button" type="button">リバーシプレイ画面</button>
+
+  <script>
+  document.getElementById('shogi_button').addEventListener('click', function() {
+    callApi('shogi');
+  });
+
+  document.getElementById('reversi_button').addEventListener('click', function() {
+    callApi('reversi');
+  });
+
+  function callApi(type) {
+    fetch('https://us-central1-shimizu-202009-dev.cloudfunctions.net/add_user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: 'y-uemoto',
+        email: 'y-uemoto@i-enter.co.jp',
+      }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      const id = data.user_id;
+      window.location.href = `https://shimizu-202009-dev.web.app/?id=${id}&type=${type}`;
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+  }
+  </script>
+</body>
+</html>

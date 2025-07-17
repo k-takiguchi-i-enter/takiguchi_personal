@@ -1,4 +1,4 @@
-name: Terraform plan
+name: Terraform IC Pipeline
 
 on:
   push:
@@ -10,12 +10,15 @@ on:
       - 'terraform/env/*.tfvars'
       - 'applications/**'
 
+permissions:
+  id-token: write
+  contents: read
+
 env:
   AWS_REGION: ap-northeast-1
-  AWS_ROLE_ARN: arn:aws:iam::160615147422:role/dev-storage-prod-oidc-role
 
 jobs:
-  plan_add:
+  apply_add:
     if: startsWith(github.ref, 'refs/heads/add_')
     runs-on: ubuntu-latest
     steps:
@@ -34,14 +37,14 @@ jobs:
           role-to-assume: ${{ secrets.ROLE_ARN_PRD }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Terraform plan for add
+      - name: Terraform apply for add
         run: |
           cd terraform/
           terraform init -backend-config=./env/prod.backend.tfvars
-          terraform plan -auto-approve -var-file=./env/prod.tfvars -target=module.cloudfront.aws_cloudfront_function.function
-          terraform plan -auto-approve -var-file=./env/prod.tfvars
+          terraform apply -auto-approve -var-file=./env/prod.tfvars -target=module.cloudfront.aws_cloudfront_function.function
+          terraform apply -auto-approve -var-file=./env/prod.tfvars
 
-  plan_delete:
+  apply_delete:
     if: startsWith(github.ref, 'refs/heads/delete_')
     runs-on: ubuntu-latest
     steps:
@@ -60,17 +63,17 @@ jobs:
           role-to-assume: ${{ secrets.ROLE_ARN_PRD }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Terraform plan for delete
+      - name: Terraform apply for delete
         run: |
           cd terraform/
           terraform init -backend-config=./env/prod.backend.tfvars
-          terraform plan -auto-approve -var-file=./env/prod.tfvars -target=module.cloudfront.aws_cloudfront_distribution.contents
-          terraform plan -auto-approve -var-file=./env/prod.tfvars
+          terraform apply -auto-approve -var-file=./env/prod.tfvars -target=module.cloudfront.aws_cloudfront_distribution.contents
+          terraform apply -auto-approve -var-file=./env/prod.tfvars
 
-  s3_sync:
+  applications_deploy:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    needs: [plan_add, plan_delete]
+    needs: [apply_add, apply_delete]
     steps:
       - uses: actions/checkout@v4
 
@@ -80,6 +83,6 @@ jobs:
           role-to-assume: ${{ secrets.ROLE_ARN_PRD }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: applications/ → S3 同期
+      - name: S3 sync applications/
         run: |
           aws s3 sync --exact-timestamps applications/ s3://${{ secrets.S3_BUCKET_NAME_PRD }}/applications/ --delete

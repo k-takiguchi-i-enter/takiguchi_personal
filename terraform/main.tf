@@ -12,6 +12,8 @@ terraform {
   backend "s3" {}
 }
 
+
+
 provider "aws" {
   region = "ap-northeast-1"
 
@@ -97,4 +99,3 @@ module "iam" {
   provider_project_path        = var.provider_project_path
   provider_branch_name         = var.provider_branch_name
 }
-

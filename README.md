@@ -3,7 +3,7 @@
 ### このレポジトリの運用について
 
 #### ■概要
-systemadminアカウントで稼働しているdev-storage用のCloudFront、S3といったリソースを管理するためのリポジトリです。  
+systemadminアカウントで稼働しているdev-storage用のCloudFront、S3といったリソースを管理するためのリポジトリです。
 Route53のレコードを除き、インフラはterraformで作成しています。
 
 運用時は次の用途で利用されます。  

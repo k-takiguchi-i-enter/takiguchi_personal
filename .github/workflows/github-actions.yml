@@ -6,7 +6,6 @@ on:
       - main
       - 'add_*'
       - 'delete_*'
-    # 変更監視するパス
     paths:
       - 'terraform/env/*.tfvars'
       - 'applications/**'

@@ -10,9 +10,12 @@ on:
       - 'terraform/env/*.tfvars'
       - 'applications/**'
 
+permissions:
+  id-token: write
+  contents: read
+
 env:
   AWS_REGION: ap-northeast-1
-  AWS_ROLE_ARN: arn:aws:iam::160615147422:role/dev-storage-prod-oidc-role
 
 jobs:
   plan_add:
@@ -67,7 +70,7 @@ jobs:
           terraform plan -auto-approve -var-file=./env/prod.tfvars -target=module.cloudfront.aws_cloudfront_distribution.contents
           terraform plan -auto-approve -var-file=./env/prod.tfvars
 
-  s3_sync:
+  applications_deploy:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: [plan_add, plan_delete]
@@ -80,6 +83,6 @@ jobs:
           role-to-assume: ${{ secrets.ROLE_ARN_PRD }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: applications/ → S3 同期
+      - name: S3 sync applications/
         run: |
           aws s3 sync --exact-timestamps applications/ s3://${{ secrets.S3_BUCKET_NAME_PRD }}/applications/ --delete

@@ -1,7 +1,6 @@
 project = "dev-storage"
 env     = "prod"
 
-
 # CloudFront
 comment = "prod"
 ### basic認証を付与したい時"true"、外したい時"false"

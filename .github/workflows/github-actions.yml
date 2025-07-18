@@ -41,8 +41,10 @@ jobs:
         run: |
           cd terraform/
           terraform init -backend-config=./env/prod.backend.tfvars
-          terraform plan -auto-approve -var-file=./env/prod.tfvars -target=module.cloudfront.aws_cloudfront_function.function
-          terraform plan -auto-approve -var-file=./env/prod.tfvars
+          # terraform plan -auto-approve -var-file=./env/prod.tfvars -target=module.cloudfront.aws_cloudfront_function.function
+          # terraform plan -auto-approve -var-file=./env/prod.tfvars
+          terraform plan -var-file=./env/prod.tfvars -target=module.cloudfront.aws_cloudfront_function.function
+          terraform plan -var-file=./env/prod.tfvars
 
   plan_delete:
     if: startsWith(github.ref, 'refs/heads/delete_')
